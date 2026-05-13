@@ -15,16 +15,19 @@ Open [t1/image_analysis.py](t1/image_analysis.py) and implement the TODO:
 - Pass both images in a single message and ask the model to generate a poem based on them
 
 ### 2. Image Generation
-#### DALL-E 3
-Open [t2/dalle_image_generation.py](t2/dalle_image_generation.py) and implement the TODO:
-- Generate an image of `"Smiling catdog"` using `dall-e-3` via `/v1/images/generations`
-- Play with parameters: `size` (square / portrait / landscape), `style` (vivid / natural), `quality` (standard / hd)
-- The response contains a URL to the generated image
 
 #### GPT Image 1
 Open [t2/gpt_image_generation.py](t2/gpt_image_generation.py) and implement the TODO:
 - Generate an image of `"Smiling catdog"` using `gpt-image-1` via `/v1/images/generations`
 - Decode the base64 response and save the image locally
+
+#### Image Edit
+Open [t2/gpt_image_edit.py](t2/gpt_image_edit.py) and implement the TODO:
+- Edit the local `logo.png` using `gpt-image-1` via `/v1/images/edits`
+- Send the request as `multipart/form-data` (image file + prompt), not JSON
+- Use the prompt to add some "magic" to the logo — sparkles, glow, mystical aura, etc.
+- Decode the base64 response and save the edited image locally
+- [Docs](https://developers.openai.com/api/reference/resources/images/methods/edit)
 
 ### 3. Speech to Text
 Open [t3/speech_to_text.py](t3/speech_to_text.py) and implement the TODO:
