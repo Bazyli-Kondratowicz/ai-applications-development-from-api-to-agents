@@ -52,7 +52,7 @@ def main(model_name: str, image_path: str, prompt: str, **kwargs):
 
 
 main(
-    model_name="gpt-image-1",
+    model_name="gpt-image-2",
     image_path="logo.png",
     prompt=(
         "Transform this DIALX Community logo by adding magical sparkles, "
