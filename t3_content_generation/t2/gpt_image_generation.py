@@ -12,7 +12,7 @@ from t3_content_generation._openai_client import OpenAIClientT3
 #     -H "Authorization: Bearer $OPENAI_API_KEY" \
 #     -H "Content-type: application/json" \
 #     -d '{
-#         "model": "gpt-image-1",
+#         "model": "gpt-image-2",
 #         "prompt": "smiling catdog."
 #     }'
 # Response:
@@ -40,7 +40,7 @@ def main(model_name: str, request: str):
 
 main(
     #TODO:
-    # - model_name gpt-image-1
+    # - model_name gpt-image-2
     # - request="Smiling catdog"
 )
 
