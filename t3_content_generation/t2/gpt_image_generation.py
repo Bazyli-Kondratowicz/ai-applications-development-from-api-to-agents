@@ -5,7 +5,7 @@ from commons.constants import OPENAI_HOST
 from t3_content_generation._openai_client import OpenAIClientT3
 
 
-# https://platform.openai.com/docs/guides/image-generation?image-generation-model=gpt-image-1&api=image&multi-turn=imageid
+# https://developers.openai.com/api/reference/resources/images/methods/generate
 # ---
 # Request:
 # curl -X POST "https://api.openai.com/v1/images/generations" \
