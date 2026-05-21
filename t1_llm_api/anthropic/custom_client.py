@@ -44,7 +44,32 @@ class CustomAnthropicAIClient(AIClient):
         # - Parse response
         # - Print response to console
         # - Return ASSISTANT message
-        raise NotImplementedError
+        try:
+            response = requests.post(
+                url=f"{self._endpoint}/v1/messages",
+                headers={
+                    "x-api-key": self._api_key,
+                    "anthropic-version": "2024-06-01",
+                    "Content-Type": "application/json",
+                },  
+                json={
+                    "model": self._model_name,
+                    "max_tokens": kwargs.get("max_tokens", 1024),
+                    "system": self._system_prompt,
+                    "messages": [m.to_dict() for m in messages if m.role != Role.SYSTEM],
+                }, 
+            )
+            response.raise_for_status()
+            response_data = response.json()
+            content_blocks = response_data.get("content", [])
+            if not content_blocks:
+                raise ValueError("API response contains no content blocks.")
+            text = "".join(block.get("text", "") for block in content_blocks)
+            print(f"AI: {text}")
+            return Message(role=Role.ASSISTANT, content=text)
+        except requests.exceptions.RequestException as e:
+            print(f"HTTP request failed: {e}")
+            raise
 
     async def stream_response(self, messages: list[Message], **kwargs) -> Message:
         """
@@ -75,5 +100,29 @@ class CustomAnthropicAIClient(AIClient):
         # - Parse response
         # - Print chunks to console
         # - Return ASSISTANT message
-        raise NotImplementedError
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    url=f"{self._endpoint}/v1/messages",
+                    headers={
+                        "x-api-key": self._api_key,
+                        "anthropic-version": "2024-06-01",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": self._model_name,
+                        "max_tokens": kwargs.get("max_tokens", 1024),
+                        "system": self._system_prompt,
+                        "messages": [m.to_dict() for m in messages if m.role != Role.SYSTEM],
+                    },
+                ) as response:
+                    async for line in response.content:
+                        line = line.decode("utf-8")
+                        if line.startswith("data: "):
+                            data = json.loads(line[6:])
+                            if data.get("type") == "content_block_delta":
+                                print(data.get("delta", {}).get("text", ""), end="", flush=True)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            raise
 

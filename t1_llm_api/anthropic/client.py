@@ -35,7 +35,9 @@ class AnthropicAIClient(AIClient):
         # Useful links with request/response samples:
         #   - https://docs.anthropic.com/en/api/overview
         #   - https://docs.anthropic.com/en/api/messages
-        raise NotImplementedError
+        super().__init__(endpoint, model_name, api_key, system_prompt)
+        self._client = Anthropic(api_key=api_key)
+        self._async_client = AsyncAnthropic(api_key=api_key)
 
     def response(self, messages: list[Message], **kwargs) -> Message:
         """
@@ -58,8 +60,16 @@ class AnthropicAIClient(AIClient):
         # - Call client
         # - Print response to console
         # - Return ASSISTANT message
-        raise NotImplementedError
-
+        response = self._client.messages.create(
+            model=self._model_name,
+            max_tokens=kwargs.get("max_tokens", 1024),
+            system=self._system_prompt,
+            messages=[m.to_dict() for m in messages if m.role != Role.SYSTEM],
+        )
+        text = "".join(block.text for block in response.content)
+        print(f"AI: {text}")
+        return Message(role=Role.ASSISTANT, content=text)
+    
     async def stream_response(self, messages: list[Message], **kwargs) -> Message:
         """
         Get a streaming response from Anthropic's Claude API.
@@ -84,4 +94,17 @@ class AnthropicAIClient(AIClient):
         # - Handle stream with chunks
         # - Print response to console
         # - Return ASSISTANT message
-        raise NotImplementedError
+        full_text = ""
+        print("AI: ", end="", flush=True)
+        async with self._async_client.messages.stream(
+            model=self._model_name,
+            max_tokens=kwargs.get("max_tokens", 1024),
+            system=self._system_prompt,
+            messages=[m.to_dict() for m in messages if m.role != Role.SYSTEM],
+        ) as stream:
+            async for event in stream:
+                if event.type == "content_block_delta" and event.delta.type == "text_delta":
+                    print(event.delta.text, end="", flush=True)
+                    full_text += event.delta.text
+        print()
+        return Message(role=Role.ASSISTANT, content=full_text)
